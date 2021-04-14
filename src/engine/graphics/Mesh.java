@@ -1,5 +1,6 @@
 package engine.graphics;
 
+import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -12,14 +13,17 @@ import org.lwjgl.opengl.GL30;
 public class Mesh {
 	private Vertex[] vertices;
 	private int[] indices;
-	private int vao,vbo,pbo,ibo,cbo;
+	private Material material;
+	private int vao,vbo,pbo,ibo,cbo,tbo;
 	
-	public Mesh(Vertex[] vertices, int[] indices) {
+	public Mesh(Vertex[] vertices, int[] indices, Material material) {
 		this.vertices = vertices;
 		this.indices = indices;
+		this.material = material;
 	}
 	
 	public void create() {
+		material.create();
 		vao = GL30.glGenVertexArrays();
 		GL30.glBindVertexArray(vao);
 		
@@ -37,14 +41,25 @@ public class Mesh {
 		FloatBuffer colorBuffer = MemoryUtil.memAllocFloat(vertices.length * 3);
 		float[] colorData = new float[vertices.length * 3];
 		for(int i=0;i<vertices.length; i++) {
-			positionData[i*3] = vertices[i].getColor().getX();
-			positionData[i*3 + 1] = vertices[i].getColor().getY();
-			positionData[i*3 + 2] = vertices[i].getColor().getZ();
+			colorData[i*3] = vertices[i].getColor().getX();
+			colorData[i*3 + 1] = vertices[i].getColor().getY();
+			colorData[i*3 + 2] = vertices[i].getColor().getZ();
 		}
 		colorBuffer.put(colorData).flip();
 		
 		cbo = storeData(colorBuffer,1,3);
-		
+
+
+		FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(vertices.length * 2);
+		float[] textureData = new float[vertices.length * 2];
+		for(int i=0;i<vertices.length; i++) {
+			textureData[i*2] = vertices[i].getTextureCoord().getX();
+			textureData[i*2 + 1] = vertices[i].getTextureCoord().getY();
+			//textureData[i*2 + 1] = vertices[i].getColor().getZ();
+		}
+		textureBuffer.put(textureData).flip();
+
+		tbo = storeData(textureBuffer,2,2);
 		
 		IntBuffer indicesBuffer = MemoryUtil.memAllocInt(indices.length);
 		indicesBuffer.put(indices).flip();
@@ -69,8 +84,10 @@ public class Mesh {
 		GL15.glDeleteBuffers(pbo);
 		GL15.glDeleteBuffers(cbo);
 		GL15.glDeleteBuffers(ibo);
+		GL15.glDeleteBuffers(tbo);
 		
 		GL30.glDeleteVertexArrays(vao);
+		material.destroy();
 	}
 	public Vertex[] getVertices() {
 		return vertices;
@@ -99,5 +116,12 @@ public class Mesh {
 	public int getIbo() {
 		return ibo;
 	}
-	
+
+	public int getTbo() {
+		return tbo;
+	}
+
+	public Material getMaterial() {
+		return material;
+	}
 }
