@@ -34,7 +34,7 @@ public class Main implements Runnable {
 	
 	public void init() {
 		window = new Window(WIDTH, HEIGHT, "Game");
-		shader = new Shader("C:\\Users\\lolii\\eclipse-workspace\\2dEngine@1\\resources\\shaders\\mainVertex.glsl","C:\\Users\\lolii\\eclipse-workspace\\2dEngine@1\\resources\\shaders\\mainFragment.glsl");
+		shader = new Shader("resources/shaders/mainVertex.glsl","resources/shaders/mainFragment.glsl");
 		renderer = new Renderer(shader);
 		//renderer.setShader(shader);
 		window.setBackground(1.0f, 0.0f, 0.0f);
